@@ -8,5 +8,13 @@ def cc():
 con,cur = cc()
 cur.execute("CREATE TABLE IF NOT EXISTS users (id serial primary key, username text, password text, points int);")
 con.commit()
+def create_user(name, password):
+    conn,cur = cc()
+    cur.execute("SELECT * from users WHERE username = '{}'".format(name))
+    if len(cur.fetchall()) == 0:
+        cur.execute("INSERT INTO users (username,password,points) VALUES ('{}','{}',0);".format(name, password))
+        conn.commit()
+    else:
+        raise Exception("user exists")
 if __name__ == "__main__":
     os.system("pgweb --url '{}'".format(url))

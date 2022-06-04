@@ -1,6 +1,7 @@
 URL = "https://api.geoapify.com/v2/places?categories=tourism&filter=circle:{lon},{lat},{meters}&bias=proximity:{lon},{lat}&limit={limit}&apiKey=276a11b14fef44f08a21535795486491"
 from flask import *
 import requests
+import database
 badges = [
     ("https://img.shields.io/badge/made-with-brightgreen","#"),
     ("https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white","https://github.com/jdszekeres/ScavangerHunt"),
@@ -30,6 +31,12 @@ def index():
         )
 @app.route("/signup", methods=["POST","GET"])
 def login():
+    if request.method == "POST":
+        try:
+            database.create_user(request.form.get("username"), request.form.get("password"))
+        except:
+            return "username exists"
+        return jsonify(request.form)
     return render_template("term.html")
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=1234,debug=True)
