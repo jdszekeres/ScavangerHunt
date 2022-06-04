@@ -12,10 +12,24 @@
  <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js"></script>
  <style>
     #map { height: 700px; }
+    footer {
+        position: fixed;
+        padding: 10px 10px 0px 10px;
+        bottom: 0;
+        width: 100%;
+        height: 40px;
+        text-align: center;
+        margin: auto;
+    }
  </style>
 </head>
 <body>
     <div id="map"></div>
+    <footer>
+        {% for i in badges%}
+            <a href="{{i[1]|safe}}"><img src="{{i[0]|safe}}"></a>
+        {% endfor %}
+    </footer>
 </body>
 <script>
     you = [{{lon}}, {{lat}}]
