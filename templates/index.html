@@ -8,10 +8,16 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
     integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
     crossorigin=""/>
- <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
- <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js"></script>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/src/L.Control.Locate.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.mapbox.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.min.css">
+    <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js"></script>
  <style>
-    #map { height: 700px; }
+    #map {
+        height: 700px;
+         }
     footer {
         position: fixed;
         padding: 10px 10px 0px 10px;
@@ -20,10 +26,26 @@
         height: 40px;
         text-align: center;
         margin: auto;
+        z-index: 1;
+    }
+    header {
+        position: fixed;
+        padding: 10px 10px 0px 10px;
+        top: 0;
+        margin: auto;
+        text-align: center;
+        width: 100%;
+        height: 40px;
+        z-index: 22;
+    }
+    header > img {
+        vertical-align: bottom;
+        border: 1px solid black;
     }
  </style>
 </head>
 <body>
+    <header id="charge">0&times;<img src="/static/battery.png"></header>
     <div id="map"></div>
     <footer>
         {% for i in badges%}
@@ -33,12 +55,19 @@
 </body>
 <script>
     you = [{{lon}}, {{lat}}]
-    var map = L.map('map').setView(you, 17).locate({setView: true, maxZoom: 16});
+    var map = L.map('map').setView(you, 17)//.locate({setView: true, maxZoom: 16});
     L.tileLayer('https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
     }).addTo(map);
-    const ruler = new CheapRuler({{lat}}, 'meters');
+    const ruler = new CheapRuler(you[1], 'meters');
+    var locate = L.control.locate({
+        locateOptions: {
+            enableHighAccuracy: true
+        },
+        metric: false
+    }).addTo(map);
+    locate.start();
     var circle = L.circle(you, {
         color: 'red',
         fillColor: '#f03',
@@ -49,8 +78,12 @@
         var i = {{i|tojson}};
         var distance = ruler.distance(i.geometry.coordinates, you);
         if (distance<{{radius}}){
+            popup = i.properties.formatted;
+            if (i.properties.hasOwnProperty("name")) {
+                popup = i.properties.name+"("+popup+")";
+            }
             marker = L.marker([i.geometry.coordinates[1], i.geometry.coordinates[0]]).addTo(map)
-            marker.bindPopup(JSON.stringify(i.properties)).openPopup();
+            marker.bindPopup(JSON.stringify(popup))//.openPopup();
             console.log(i.properties)
         }
     {% endfor %}
