@@ -15,8 +15,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.min.css">
     <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js"></script>
  <style>
-    #map {
-        height: 700px;
+
+    html, body, #map {
+            padding: auto;
+            height: 100%;
+            width: 100%;
          }
     footer {
         position: fixed;
@@ -40,7 +43,9 @@
     }
     header > img {
         vertical-align: bottom;
-        border: 1px solid black;
+    }
+    .leaflet-marker-icon {
+        z-index: -1;
     }
  </style>
 </head>
@@ -54,12 +59,16 @@
     </footer>
 </body>
 <script>
-    you = [{{lon}}, {{lat}}]
+    you = [{{lon}}, {{lat}}].reverse();
     var map = L.map('map').setView(you, 17)//.locate({setView: true, maxZoom: 16});
     L.tileLayer('https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
     }).addTo(map);
+    L.Icon.Default.imagePath = "/static/markers/";
+    var fallout = new L.icon({
+        iconUrl: '/static/markers/fallout.png'
+    })
     const ruler = new CheapRuler(you[1], 'meters');
     var locate = L.control.locate({
         locateOptions: {
@@ -68,24 +77,41 @@
         metric: false
     }).addTo(map);
     locate.start();
-    var circle = L.circle(you, {
-        color: 'red',
-        fillColor: '#f03',
-        fillOpacity: 0.0,
-        radius: {{radius}}
-    }).addTo(map);
+    you = you.reverse();
+    coordinates = [];
     {% for i in stuff%}
-        var i = {{i|tojson}};
-        var distance = ruler.distance(i.geometry.coordinates, you);
-        if (distance<{{radius}}){
-            popup = i.properties.formatted;
+            var i = {{i|tojson}};
+            popup = "<a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.formatted+"</a>";
             if (i.properties.hasOwnProperty("name")) {
-                popup = i.properties.name+"("+popup+")";
+                popup = i.properties.name+"<br>("+popup+")";
             }
-            marker = L.marker([i.geometry.coordinates[1], i.geometry.coordinates[0]]).addTo(map)
-            marker.bindPopup(JSON.stringify(popup))//.openPopup();
-            console.log(i.properties)
-        }
+            if (i.properties.details.includes("details.artwork")) {
+                popup = "<img src='/static/markers/art.png' width='16px'>"+popup
+            }
+            marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
+            marker.bindPopup(popup);
+            coordinates.push({"id":i.properties.place_id,"coordinates":{"lat":i.properties.lat,"lon":i.properties.lon}})
+            if (i.properties.details.length !== 0){
+                console.log(i.properties);
+            }
     {% endfor %}
+    options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      };
+      function success(pos) {
+        var crd = pos.coords;
+        coordinates.forEach((i) => {
+            if (ruler.distance([crd.longitude, crd.latitude], [i.coordinates.lon, i.coordinates.lat]) < 50) {
+                console.log("you have reached your target "+JSON.stringify(i))
+            }
+        })
+      }
+      function error(err) {
+        console.warn('ERROR(' + err.code + '): ' + err.message);
+      }
+    id = navigator.geolocation.watchPosition(success, error, options);
+
 </script>
 </html>
