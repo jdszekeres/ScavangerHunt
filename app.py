@@ -20,4 +20,5 @@ def index():
     meters = miles*1610
     lat, lon = get_lat_lon("127.0.0.1")
     return render_template('index.html', stuff=requests.get(URL.format(lon=lon,lat=lat,meters=meters,limit=25)).json()["features"], lat=lat,lon=lon, radius=meters,badges=badges)
-app.run(host="0.0.0.0",port=1234)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",port=1234)
