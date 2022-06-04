@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{type}}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: black;
+            background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            padding: 2rem;
+            color: white;
+            font: 1.3rem Inconsolata, monospace;
+            text-shadow: 0 0 5px #C8C8C8;
+          }
+          body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+          }
+          ::selection {
+            background: #0080FF;
+            text-shadow: none;
+          }
+          
+          pre {
+            margin: 0;
+          }
+          span {
+              width: 100%;
+              height: 20px;
+          }
+    </style>
+</head>
+<body>
+    <pre>
+        <output>
+
+        </output>
+    </pre>
+    <form method="post">
+        <input type="hidden" name="username" id="u">
+        <input type="hidden" name="password" id="p">
+        <input type="submit" hidden id="sub">
+    </form>
+</body>
+<script>
+    
+    username = document.getElementById("u")
+    password = document.getElementById("p")
+    selected = username
+    span = document.createElement("span")
+    span.contentEditable = true
+    span.style.outline = "0px solid transparent";
+    span.style.display = "block"
+    document.body.appendChild(span)
+
+    prompt = "enter your username"
+    i = 0
+    function typeWriter() {
+        if (i < prompt.length && span.innerHTML !== prompt) {
+          span.innerHTML += prompt.charAt(i);
+          i++;
+          setTimeout(typeWriter, 50);
+        } else {
+            prompt = ""
+        }
+    }
+    typeWriter()
+
+    span.onkeydown = function (event) {
+        console.log(event)
+        if (event.which >= 37 && event.which < 40) {
+            event.preventDefault();
+        }
+    }
+    //id = setTimeout(()=>{span.innerHTML = "";setEndOfContenteditable(span)}, 1750)
+    function input (key) {
+        console.log(key)
+        if (key.inputType == "insertParagraph") {
+            console.log(selected, prompt)
+            key.preventDefault();
+            if (selected === username && prompt !== "") {
+                selected = password;
+                span.contentEditable = false;
+                span = document.createElement("span");
+                span.contentEditable = true;
+                span.style.outline = "0px solid transparent";
+                span.style.display = "block"
+                document.body.appendChild(span)
+                span.focus();
+                span.oninput = input;
+                prompt = "Enter your password";
+                i = 0;
+                typeWriter();
+                setTimeout(function() {span.i})
+            } else if (selected === password && prompt !== "" && prompt !== "Enter your password") {
+                console.log("pass")
+                document.getElementById("sub").click()
+            }
+
+        }
+        if (key.inputType === "deleteContentBackward") {
+            prompt = prompt.slice(0, -1);
+        }
+        if (prompt === "" || prompt === "Enter your password") {
+            span.innerHTML = ""
+        }
+        if (key.data !== null) {
+            prompt += key.data
+        }
+        console.log(prompt)
+        span.innerHTML = prompt
+        selected.value = prompt
+        setEndOfContenteditable(span);
+    }
+    span.oninput = input
+function setEndOfContenteditable(contentEditableElement)
+{
+    var range,selection;
+    if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+    {
+        range = document.createRange();//Create a range (a range is a like the selection but invisible)
+        range.selectNodeContents(contentEditableElement);//Select the entire contents of the element with the range
+        range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+        selection = window.getSelection();//get the selection object (allows you to change selection)
+        selection.removeAllRanges();//remove any selections already made
+        selection.addRange(range);//make the range you have just created the visible selection
+    }
+    else if(document.selection)//IE 8 and lower
+    { 
+        range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+        range.moveToElementText(contentEditableElement);//Select the entire contents of the element with the range
+        range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+        range.select();//Select the range (make it the visible selection
+    }
+}
+</script>
+</html>

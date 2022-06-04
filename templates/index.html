@@ -50,11 +50,11 @@
  </style>
 </head>
 <body>
-    <header id="charge">0&times;<img src="/static/battery.png"></header>
+    <header id="charge">{{points}}&times;<img src="/static/battery.png"></header>
     <div id="map"></div>
     <footer>
         {% for i in badges%}
-            <a href="{{i[1]|safe}}"><img src="{{i[0]|safe}}"></a>
+            <a href="{{i[1]|safe}}"><img src="{{i[0]|safe}}" width="96px" height="28px"></a>
         {% endfor %}
     </footer>
 </body>
@@ -100,11 +100,13 @@
         timeout: 5000,
         maximumAge: 0
       };
+      var imageUrl = 'https://game-design-mb.herokuapp.com/static/markers/charge.gif'
       function success(pos) {
         var crd = pos.coords;
         coordinates.forEach((i) => {
             if (ruler.distance([crd.longitude, crd.latitude], [i.coordinates.lon, i.coordinates.lat]) < 50) {
-                console.log("you have reached your target "+JSON.stringify(i))
+                alert("you have reached your target "+JSON.stringify(i));
+
             }
         })
       }
