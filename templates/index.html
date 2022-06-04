@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scavange</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+    crossorigin=""/>
+ <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+ <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js"></script>
+ <style>
+    #map { height: 700px; }
+ </style>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+<script>
+    you = [{{lon}}, {{lat}}]
+    var map = L.map('map').setView(you, 17).locate({setView: true, maxZoom: 16});
+    L.tileLayer('https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+    const ruler = new CheapRuler({{lat}}, 'meters');
+    var circle = L.circle(you, {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.0,
+        radius: {{radius}}
+    }).addTo(map);
+    {% for i in stuff%}
+        var i = {{i|tojson}};
+        var distance = ruler.distance(i.geometry.coordinates, you);
+        if (distance<{{radius}}){
+            marker = L.marker([i.geometry.coordinates[1], i.geometry.coordinates[0]]).addTo(map)
+            marker.bindPopup(JSON.stringify(i.properties)).openPopup();
+            console.log(i.properties)
+        }
+    {% endfor %}
+</script>
+</html>
