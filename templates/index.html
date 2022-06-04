@@ -59,6 +59,8 @@
     </footer>
 </body>
 <script>
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
     you = [{{lon}}, {{lat}}].reverse();
     var map = L.map('map').setView(you, 17)//.locate({setView: true, maxZoom: 16});
     L.tileLayer('https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw', {
@@ -101,11 +103,12 @@
         maximumAge: 0
       };
       var imageUrl = 'https://game-design-mb.herokuapp.com/static/markers/charge.gif'
+      
       function success(pos) {
         var crd = pos.coords;
         coordinates.forEach((i) => {
-            if (ruler.distance([crd.longitude, crd.latitude], [i.coordinates.lon, i.coordinates.lat]) < 50) {
-                alert("you have reached your target "+JSON.stringify(i));
+            if (ruler.distance([crd.longitude, crd.latitude], [i.coordinates.lon, i.coordinates.lat]) < 50 && i.id !== urlParams.get("id")) {
+                location.href = "http://"+location.host + "/point?id="+i.id
 
             }
         })

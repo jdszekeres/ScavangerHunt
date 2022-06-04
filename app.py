@@ -11,6 +11,7 @@ badges = [
     ("https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54","https://python.org")
     ]
 app = Flask(__name__)
+app.secret_key = "\xb8\xb0spa07\x1c\xe0\xdb\xb9\xbaB\xb2\xa1\x92"
 def get_lat_lon(ip):
     if ip == "127.0.0.1":
         ip = ""
@@ -27,16 +28,30 @@ def index():
         lat=lat,
         lon=lon,
         radius=meters,badges=badges,
-        points=0
+        points=database.get_points(session["user"])
         )
 @app.route("/signup", methods=["POST","GET"])
-def login():
+def signup():
     if request.method == "POST":
         try:
             database.create_user(request.form.get("username"), request.form.get("password"))
+            session["user"] = request.form.get("username")
+            return redirect("/")
         except:
             return "username exists"
-        return jsonify(request.form)
     return render_template("term.html")
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        if database.validate_user(request.form.get("username"), request.form.get("password")):
+            session["user"] = request.form.get("username")
+            return redirect("/")
+        return "The username or password you entered is invalid"
+    return render_template("login.html")
+@app.route("/point")
+def add_point():
+    if "user" in session:
+        database.add_point(session["user"])
+    return redirect("/?id="+request.args.get("id", "0"))
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=1234,debug=True)

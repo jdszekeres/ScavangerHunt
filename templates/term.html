@@ -106,7 +106,7 @@
                 typeWriter();
                 setTimeout(function() {span.i})
             } else if (selected === password && prompt !== "" && prompt !== "Enter your password") {
-                console.log("pass")
+                navigator.credentials.store(new PasswordCredential({id: username.value, password:password.value}))
                 document.getElementById("sub").click()
             }
 

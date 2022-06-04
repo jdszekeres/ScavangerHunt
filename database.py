@@ -16,5 +16,20 @@ def create_user(name, password):
         conn.commit()
     else:
         raise Exception("user exists")
+def validate_user(username,password):
+    conn,cur = cc()
+    cur.execute("SELECT * FROM users WHERE username = '{}' and password = '{}'".format(username, password))
+    return len(cur.fetchall()) != 0
+def add_point(username):
+    conn,cur = cc()
+    cur.execute("SELECT points FROM users where username = '{}'".format(username))
+    new_points = int(cur.fetchall()[0][0])+1
+    print("New points for {}: {}".format(username, new_points))
+    cur.execute("update users set points = '{}' where username = '{}'".format(new_points, username))
+    conn.commit()
+def get_points(username):
+    conn,cur = cc()
+    cur.execute("SELECT points FROM users where username = '{}'".format(username))
+    return int(cur.fetchall()[0][0])
 if __name__ == "__main__":
     os.system("pgweb --url '{}'".format(url))

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <form method="POST">
+        <input type="text" name="username" />
+        <br>
+        <input type="password" name="password" autocomplete="current-password" id="password"/>
+        <br>
+        <label for="check">show password</label>
+        <input type="checkbox" onclick="myFunction()" id="check"/>
+        <br>
+        <input type="submit" value="Login" />
+    </form>
+</body>
+<script>
+    function myFunction(){
+        var x = document.getElementById("password");
+        if (x.type === "password") {
+          x.type = "text";
+        } else {
+          x.type = "password";
+        }
+      }
+</script>
+</html>
