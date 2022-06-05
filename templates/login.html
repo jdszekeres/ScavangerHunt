@@ -5,17 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-</head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+  </head>
 <body>
     <form method="POST">
-        <input type="text" name="username" />
+        <label for="username" class="form-label">username</label>
+        <input type="text" name="username" autocomplete="username" required class="form-control"/>
         <br>
-        <input type="password" name="password" autocomplete="current-password" id="password"/>
+        <label for="password" class="form-label">password</label>
+        <input type="password" name="password" autocomplete="current-password" id="password" required class="form-control"/>
         <br>
-        <label for="check">show password</label>
-        <input type="checkbox" onclick="myFunction()" id="check"/>
+        <input type="checkbox" onclick="myFunction()" id="check" class="form-check-input"/>
+        <label for="check" class="form-check-label">show password</label>
         <br>
-        <input type="submit" value="Login" />
+        <input type="submit" value="Login" class="btn btn-primary"/>
+        <br>
+        <a href="/signup">register</a>
     </form>
 </body>
 <script>

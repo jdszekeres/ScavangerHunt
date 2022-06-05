@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real world scavanger hunt">
     <title>Scavange</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
     integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
@@ -14,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.min.css">
     <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js"></script>
+
  <style>
 
     html, body, #map {
@@ -50,11 +52,11 @@
  </style>
 </head>
 <body>
-    <header id="charge">{{points}}&times;<img src="/static/battery.png"></header>
+    <header id="charge">{{points}}&times;<a href="/leaderboard"><img src="/static/battery.png" alt="credits"></a></header>
     <div id="map"></div>
     <footer>
         {% for i in badges%}
-            <a href="{{i[1]|safe}}"><img src="{{i[0]|safe}}" width="96px" height="28px"></a>
+            <a href="{{i[1]|safe}}" aria-label="{{i[2]}}"><img src="{{i[0]|safe}}" width="96px" height="28px" alt="{{i[2]}}"></a>
         {% endfor %}
     </footer>
 </body>
@@ -89,6 +91,8 @@
             }
             if (i.properties.details.includes("details.artwork")) {
                 popup = "<img src='/static/markers/art.png' width='16px'>"+popup
+            } else if (i.properties.details.includes("details.building")) {
+                popup = "<img src='/static/markers/building.png' width='16px'>"+popup
             }
             marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
             marker.bindPopup(popup);
