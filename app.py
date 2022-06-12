@@ -24,6 +24,9 @@ def index():
     miles = 7.5
     meters = miles*1610
     lat, lon = get_lat_lon(request.headers.get('X-Forwarded-For',request.remote_addr))
+    if "location" in session:
+        lat = session["location"]["lat"]
+        lon = session["location"]["lon"]
     return render_template(
         'index.html',
         stuff=requests.get(URL.format(lon=lon,lat=lat,meters=meters,limit=40)).json()["features"],
@@ -58,5 +61,10 @@ def add_point():
 @app.route("/leaderboard")
 def leaderboard():
     return render_template("leaderboard.html",data=database.get_energy(session["user"]), board=database.get_place(session["user"]), you=session["user"])
+@app.route("/update", methods=["POST"])
+def update_location():
+    print(request.json)
+    session["location"] = request.json
+    return jsonify(request.json)
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=1234,debug=True)

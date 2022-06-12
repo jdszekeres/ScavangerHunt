@@ -25,7 +25,7 @@
     <h4>you have generated {{data["percent"]}}% or {{data["self"]*data["wh"]}} Kw/h</h4>
     <h4>most energy generated is {{board[0][0]*data["wh"]}}Kw/h by {{board[0][1]}}</h4>
     {% set count = 1%}
-    {% for i in board %}0
+    {% for i in board %}
         {% if i[1] == you%}
             <h5>you are {{count}} place</h5>
         {% endif %}
