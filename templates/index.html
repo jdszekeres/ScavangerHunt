@@ -90,7 +90,7 @@
     svg = `<i class="fa-solid fa-map-location-dot"></i>`
     var map = L.map('map').setView(you, 17)//.locate({setView: true, maxZoom: 16});
     L.tileLayer('https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw', {
-        maxZoom: 19,
+        maxZoom: 22,
         attribution: '© OpenStreetMap'
     }).addTo(map);
     L.Icon.Default.imagePath = "/static/markers/";
@@ -118,10 +118,13 @@
           });
     }).addTo(map);
     {% for i in stuff%}
+    {% if "formatted" in i.properties%}
             var i = {{i|tojson}};
             popup = "<a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.formatted+"</a>";
             if (i.properties.hasOwnProperty("name")) {
                 popup = i.properties.name+"<br>("+popup+")";
+            } else if (i.properties.hasOwnProperty("address_line1")) {
+                popup = i.properties.address_line1+"<br>("+popup+")"
             }
             if (i.properties.details.includes("details.artwork")) {
                 popup = "<img src='/static/markers/art.png' width='16px'>"+popup
@@ -134,7 +137,7 @@
             if (i.properties.details.length !== 0){
                 console.log(i.properties);
             }
-
+    {% endif %}
     {% endfor %}
     options = {
         enableHighAccuracy: true,
@@ -155,13 +158,13 @@
         })
       }
       function error(err) {
-          if (err.code === error.PERMISSION_DENIED){
+          if (err.code === 1){
               alert("this website requires location")
               alert("We do not share this information with anyone")
           }
         console.warn('ERROR(' + err.code + '): ' + err.message);
       }
-    id = navigator.geolocation.watchPosition(success, error, options);
+    id = navigator.geolocation.watchPosition(success, error, {});
 
 </script>
 
