@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
     <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
     <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
  <style>
     html, body, #map {
             padding: auto;
@@ -50,11 +50,31 @@
     .leaflet-marker-icon {
         z-index: -1;
     }
+    .marquee {
+        width: 100%;
+        line-height: 50px;
+        white-space: nowrap;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+    .marquee p {
+        display: inline-block;
+        padding-left: 100%;
+        animation: marquee 15s linear infinite;
+    }
+    @keyframes marquee {
+        0%   { transform: translate(0, 0); }
+        100% { transform: translate(-100%, 0); }
+    }
  </style>
 </head>
 <body>
     <!--battery icon at top-->
-    <header id="charge">{{points}}&times;<a href="/leaderboard"><img src="/static/battery.png" alt="credits"></a></header>
+    <header id="charge">
+        {{points}}&times;<a href="/leaderboard"><img src="/static/battery.png" alt="credits"></a>
+        <br>
+        <div class="marquee"><p>{{tip|safe}}</p></div>
+    </header>
     <div id="map"></div>
     <footer>
         {% for i in badges%}
@@ -67,16 +87,12 @@
     const urlParams = new URLSearchParams(queryString);
     var lat,lon;
     you = [{{lon}}, {{lat}}].reverse();
-    svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M408 120C408 174.6 334.9 271.9 302.8 311.1C295.1 321.6 280.9 321.6 273.2 311.1C241.1 271.9 168 174.6 168 120C168 53.73 221.7 0 288 0C354.3 0 408 53.73 408 120zM288 152C310.1 152 328 134.1 328 112C328 89.91 310.1 72 288 72C265.9 72 248 89.91 248 112C248 134.1 265.9 152 288 152zM425.6 179.8C426.1 178.6 426.6 177.4 427.1 176.1L543.1 129.7C558.9 123.4 576 135 576 152V422.8C576 432.6 570 441.4 560.9 445.1L416 503V200.4C419.5 193.5 422.7 186.7 425.6 179.8zM150.4 179.8C153.3 186.7 156.5 193.5 160 200.4V451.8L32.91 502.7C17.15 508.1 0 497.4 0 480.4V209.6C0 199.8 5.975 190.1 15.09 187.3L137.6 138.3C140 152.5 144.9 166.6 150.4 179.8H150.4zM327.8 331.1C341.7 314.6 363.5 286.3 384 255V504.3L192 449.4V255C212.5 286.3 234.3 314.6 248.2 331.1C268.7 357.6 307.3 357.6 327.8 331.1L327.8 331.1z"/></svg>'
+    svg = `<i class="fa-solid fa-map-location-dot"></i>`
     var map = L.map('map').setView(you, 17)//.locate({setView: true, maxZoom: 16});
     L.tileLayer('https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
     }).addTo(map);
-    var popup = L.popup()
-    .setLatLng(you)
-    .setContent("clicking the "+svg.replace('viewBox="0 0 576 512"', 'viewBox="0 0 576 512" width="25" height="25"')+" button will update your location")
-    .openOn(map);
     L.Icon.Default.imagePath = "/static/markers/";
     var fallout = new L.icon({
         iconUrl: '/static/markers/fallout.png'
@@ -148,4 +164,5 @@
     id = navigator.geolocation.watchPosition(success, error, options);
 
 </script>
+
 </html>

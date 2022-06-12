@@ -1,7 +1,7 @@
 URL = "https://api.geoapify.com/v2/places?categories=tourism&filter=circle:{lon},{lat},{meters}&bias=proximity:{lon},{lat}&limit={limit}&apiKey=276a11b14fef44f08a21535795486491"
 from flask import *
 import requests
-import database
+import database 
 badges = [
     ("https://img.shields.io/badge/made-with-brightgreen","#","made with"),
     ("https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white","https://github.com/jdszekeres/ScavangerHunt", "github"),
@@ -10,6 +10,13 @@ badges = [
     ("https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white","https://code.visualstudio.com/", "visual studios code"),
     ("https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54","https://python.org", "python")
     ]
+tips = [
+    'clicking the <i class="fa-solid fa-map-location-dot"></i> button will update your location',
+    'until you click the <i class="fa-solid fa-map-location-dot"></i> button we use a approximate location that can be innacurate',
+    'clicking the <img src="/static/battery.png" alt="credits"> button will show the leaderboard',
+    'you can get directions to a marker by clicking on the marker and then cliciking the address'
+    ]
+
 app = Flask(__name__)
 app.secret_key = "\xb8\xb0spa07\x1c\xe0\xdb\xb9\xbaB\xb2\xa1\x92"
 def get_lat_lon(ip):
@@ -21,7 +28,7 @@ def get_lat_lon(ip):
 def index():
     if not "user" in session:
         return redirect("/login")
-    miles = 7.5
+    miles = 10
     meters = miles*1610
     lat, lon = get_lat_lon(request.headers.get('X-Forwarded-For',request.remote_addr))
     if "location" in session:
@@ -29,11 +36,20 @@ def index():
         lon = session["location"]["lon"]
     return render_template(
         'index.html',
-        stuff=requests.get(URL.format(lon=lon,lat=lat,meters=meters,limit=40)).json()["features"],
+        stuff=requests.get(
+            URL.format(
+                lon=lon,
+                lat=lat,
+                meters=meters,
+                limit=70
+                )
+            ).json()["features"],
         lat=lat,
         lon=lon,
-        radius=meters,badges=badges,
-        points=database.get_points(session["user"])
+        radius=meters,
+        badges=badges,
+        points=database.get_points(session["user"]),
+        tip=str("&nbsp;"*70).join(tips)
         )
 @app.route("/signup", methods=["POST","GET"])
 def signup():
