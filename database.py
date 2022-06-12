@@ -1,7 +1,8 @@
 url = "postgres://wxvjdiftesdjlv:a0a5e931304fb58d774c2ab7e42bbbb5840337d0192335be1993c49b1ba99635@ec2-54-165-178-178.compute-1.amazonaws.com:5432/d2dgk4gg48g0gr"
-WATTS_PER_HOUR = 1.323
+WATTS_PER_HOUR = 1.239
 import psycopg2
 import os
+from operator import itemgetter
 def cc():
     """create con and cur"""
     conn = psycopg2.connect(url)
@@ -41,5 +42,10 @@ def get_energy(username):
     cur.execute("SELECT points FROM users WHERE username = '{}'".format(username))
     self_points = cur.fetchall()[0][0]
     return {"total":total,"self":self_points,"percent":(self_points/total)*100,"wh":WATTS_PER_HOUR}
+def get_place(username):
+    conn, cur = cc()
+    cur.execute("SELECT points, username FROM users")
+    list_of_users = sorted(cur.fetchall(), key=itemgetter(1), reverse=True)
+    return list_of_users
 if __name__ == "__main__":
     os.system("pgweb --url '{}'".format(url))

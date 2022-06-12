@@ -57,6 +57,6 @@ def add_point():
     return redirect("/?id="+request.args.get("id", "0"))
 @app.route("/leaderboard")
 def leaderboard():
-    return render_template("leaderboard.html",data=database.get_energy(session["user"]))
+    return render_template("leaderboard.html",data=database.get_energy(session["user"]), board=database.get_place(session["user"]), you=session["user"])
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=1234,debug=True)

@@ -5,9 +5,32 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard</title>
+    <style>
+        img {
+            display: block;
+            margin: auto;
+            float: center;
+
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    total: {{data["total"]*data["wh"]}} kilowatts an hour
-    you have generated {{data["self"]*data["wh"]}} kilowatts hour. You have generated {{data["percent"]}}%
+    <img src="/static/city.png" width="50%">
+    <br>
+    <h1>power report</h1>
+    <h3>total energy: {{data["total"]*data["wh"]}} Kw/h</h3>
+    <h4>you have generated {{data["percent"]}}% or {{data["self"]*data["wh"]}} Kw/h</h4>
+    <h4>most energy generated is {{board[0][0]*data["wh"]}}Kw/h by {{board[0][1]}}</h4>
+    {% set count = 1%}
+    {% for i in board %}
+        {% if i[1] == you%}
+            <h5>you are {{count}} place</h5>
+        {% endif %}
+        {% set count = count + 1%}
+    {% endfor %}
+
 </body>
 </html>
