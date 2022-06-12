@@ -1,4 +1,4 @@
-URL = "https://api.geoapify.com/v2/places?categories=tourism&filter=circle:{lon},{lat},{meters}&bias=proximity:{lon},{lat}&limit={limit}&apiKey=276a11b14fef44f08a21535795486491"
+URL = "https://api.geoapify.com/v2/places?categories=entertainment,leisure,tourism,beach,heritage&filter=circle:{lon},{lat},{meters}&bias=proximity:{lon},{lat}&limit={limit}&apiKey=276a11b14fef44f08a21535795486491"
 from flask import *
 import requests
 import database 
