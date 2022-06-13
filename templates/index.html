@@ -83,6 +83,9 @@
     </footer>
 </body>
 <script>
+    if (location.protocol !== 'https:' && location.hostname.includes("heroku")) {
+        location.replace(`https:${location.href.substring(location.protocol.length)}`);
+    }
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     var lat,lon;
