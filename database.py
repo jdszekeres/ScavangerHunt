@@ -45,7 +45,7 @@ def get_energy(username):
 def get_place(username):
     conn, cur = cc()
     cur.execute("SELECT points, username FROM users")
-    list_of_users = sorted(cur.fetchall(), key=itemgetter(1), reverse=True)
+    list_of_users = sorted(cur.fetchall(), key=lambda x: x[0])[::-1]
     return list_of_users
 if __name__ == "__main__":
     os.system("pgweb --url '{}'".format(url))

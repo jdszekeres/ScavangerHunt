@@ -19,6 +19,10 @@ tips = [
 
 app = Flask(__name__)
 app.secret_key = "\xb8\xb0spa07\x1c\xe0\xdb\xb9\xbaB\xb2\xa1\x92"
+@app.after_request
+def enforce_https(response):
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    return response
 def get_lat_lon(ip):
     if ip == "127.0.0.1":
         ip = ""
@@ -73,14 +77,15 @@ def login():
 def add_point():
     if "user" in session:
         database.add_point(session["user"])
-    return redirect("/?id="+request.args.get("id", "0"))
+    return """<meta http-equiv="refresh" content="0;URL='https://game-design-mb.herokuapp.com/?id={}'" />""".format(request.args.get("id", "0"))
 @app.route("/leaderboard")
 def leaderboard():
     return render_template("leaderboard.html",data=database.get_energy(session["user"]), board=database.get_place(session["user"]), you=session["user"])
 @app.route("/update", methods=["POST"])
 def update_location():
     print(request.json)
-    session["location"] = request.json
+    if "lat" in request.json:
+        session["location"] = request.json
     return jsonify(request.json)
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=1234,debug=True)

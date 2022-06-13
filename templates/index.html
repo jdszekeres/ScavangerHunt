@@ -86,6 +86,7 @@
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     var lat,lon;
+    let id;
     you = [{{lon}}, {{lat}}].reverse();
     svg = `<i class="fa-solid fa-map-location-dot"></i>`
     var map = L.map('map').setView(you, 17)//.locate({setView: true, maxZoom: 16});
@@ -118,26 +119,26 @@
           });
     }).addTo(map);
     {% for i in stuff%}
-    {% if "formatted" in i.properties%}
-            var i = {{i|tojson}};
-            popup = "<a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.formatted+"</a>";
-            if (i.properties.hasOwnProperty("name")) {
-                popup = i.properties.name+"<br>("+popup+")";
-            } else if (i.properties.hasOwnProperty("address_line1")) {
-                popup = i.properties.address_line1+"<br>("+popup+")"
-            }
-            if (i.properties.details.includes("details.artwork")) {
-                popup = "<img src='/static/markers/art.png' width='16px'>"+popup
-            } else if (i.properties.details.includes("details.building")) {
-                popup = "<img src='/static/markers/building.png' width='16px'>"+popup
-            }
-            marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
-            marker.bindPopup(popup);
-            coordinates.push({"id":i.properties.place_id,"coordinates":{"lat":i.properties.lat,"lon":i.properties.lon}})
-            if (i.properties.details.length !== 0){
-                console.log(i.properties);
-            }
-    {% endif %}
+        {% if "formatted" in i.properties%}
+                var i = {{i|tojson}};
+                popup = "<a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.formatted+"</a>";
+                if (i.properties.hasOwnProperty("name")) {
+                    popup = i.properties.name+"<br>("+popup+")";
+                } else if (i.properties.hasOwnProperty("address_line1")) {
+                    popup = i.properties.address_line1+"<br>("+popup+")"
+                }
+                if (i.properties.details.includes("details.artwork")) {
+                    popup = "<img src='/static/markers/art.png' width='16px'>"+popup
+                } else if (i.properties.details.includes("details.building")) {
+                    popup = "<img src='/static/markers/building.png' width='16px'>"+popup
+                }
+                marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
+                marker.bindPopup(popup);
+                coordinates.push({"id":i.properties.place_id,"coordinates":{"lat":i.properties.lat,"lon":i.properties.lon}})
+                if (i.properties.details.length !== 0){
+                    console.log(i.properties);
+                }
+        {% endif %}
     {% endfor %}
     options = {
         enableHighAccuracy: true,
@@ -153,6 +154,7 @@
         coordinates.forEach((i) => {
             if (ruler.distance([crd.longitude, crd.latitude], [i.coordinates.lon, i.coordinates.lat]) < 50 && i.id !== urlParams.get("id")) {
                 location.href = "http://"+location.host + "/point?id="+i.id
+                navigator.geolocation.clearWatch(id);
 
             }
         })
