@@ -63,6 +63,10 @@
                     popup = "<img src='/static/markers/train.png' width='16px'>"+popup
                 } else if (i.properties.categories.includes("public_transport.bus")) {
                     popup = "<img src='/static/markers/bus.png' width='16px'>"+popup;
+                } else if (i.properties.categories.includes("natural.water")) {
+                    popup = "<img src='/static/markers/water.png' width='16px'>"+ popup
+                } else if (i.properties.categories.includes("leisure.park")) {
+                    popup = "<img src='/static/markers/park.png' width='16px'>"+popup
                 }
                 marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
                 marker.bindPopup(popup);

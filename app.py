@@ -80,6 +80,7 @@ def signup():
         print(request.form)
         try:
             database.create_user(request.form.get("username"), request.form.get("password"))
+            session.permanent = True
             session["user"] = request.form.get("username")
             return redirect("/")
         except:
@@ -94,6 +95,7 @@ def signup():
 def login():
     if request.method == "POST":
         if database.validate_user(request.form.get("username"), request.form.get("password")):
+            session.permanent = True
             session["user"] = request.form.get("username")
             return redirect("/")
         return "The username or password you entered is invalid"
