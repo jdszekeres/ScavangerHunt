@@ -67,8 +67,10 @@
     "pet",
     "tourism.attraction.viewpoint"
     ];
+    {% set markers=[]%}
     {% for i in stuff%}
-        {% if "formatted" in i.properties and "name" in i.properties%}
+        {% if "formatted" in i.properties and "name" in i.properties and find_nearest([i.properties.lat,i.properties.lon], markers)>100%}
+                //{{ markers.append([i.properties.lat,i.properties.lon]) }}
                 var i = {{i|tojson}};
                 popup = "<br><a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.name||i.properties.address_line1+"</a>";
                 if (i.properties.details.includes("details.artwork")) {
@@ -107,7 +109,21 @@
     console.log("yay, you have "+cnt.toLocaleString()+" targets to find")
     console.log("categories are")
     console.log(categories)
-    options={enableHighAccuracy:!0,timeout:5e3,maximumAge:0};var imageUrl="https://game-design-mb.herokuapp.com/static/markers/charge.gif";function success(b){var a=b.coords;lat=a.latitude,lon=a.longitude,coordinates.forEach(b=>{50>ruler.distance([a.longitude,a.latitude],[b.coordinates.lon,b.coordinates.lat])&&b.id!==urlParams.get("id")&&(location.href="http://"+location.host+"/point?id="+b.id,navigator.geolocation.clearWatch(id))})}function error(a){1===a.code&&(alert("this website requires location"),alert("We do not share this information with anyone")),console.warn("ERROR("+a.code+"): "+a.message)}id=navigator.geolocation.watchPosition(success,error,{})
+    function success(pos) {
+        var crd = pos.coords;
+        navigator.geolocation.getCurrentPosition((pos)=>{
+            lat=pos.coords.latitude;
+            lon=pos.coords.longitude;
+        });
+        coordinates.forEach(b => {
+            if (50 > ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lon, b.coordinates.lat]) && b.id !== urlParams.get("id")){
+                location.href = "http://" + location.host + "/point?id=" + b.id
+                navigator.geolocation.clearWatch(id)
+                return;
+            }
+        })
+    }
+    options={enableHighAccuracy:!0,timeout:5e3,maximumAge:0};var imageUrl="https://game-design-mb.herokuapp.com/static/markers/charge.gif";function error(a){1===a.code&&(alert("this website requires location"),alert("We do not share this information with anyone")),console.warn("ERROR("+a.code+"): "+a.message)}id=navigator.geolocation.watchPosition(success,error,{})
 </script>
 
 </html>

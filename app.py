@@ -5,8 +5,43 @@ import requests
 import database 
 from random import choice
 import urllib3
+import math
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+def distance(origin, destination):
+    """
+    Calculate the Haversine distance.
 
+    Parameters
+    ----------
+    origin : tuple of float
+        (lat, long)
+    destination : tuple of float
+        (lat, long)
+
+    Returns
+    -------
+    distance_in_km : float
+
+    Examples
+    --------
+    >>> origin = (48.1372, 11.5756)  # Munich
+    >>> destination = (52.5186, 13.4083)  # Berlin
+    >>> round(distance(origin, destination), 1)
+    504.2
+    """
+    lat1, lon1 = origin
+    lat2, lon2 = destination
+    radius = 6371000  # meters
+
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2) * math.sin(dlat / 2) +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+         math.sin(dlon / 2) * math.sin(dlon / 2))
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    d = radius * c
+
+    return d
 badges = [
     # ("https://img.shields.io/badge/made-with-brightgreen","#","made with"),
     # ("https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white","https://github.com/jdszekeres/ScavangerHunt", "github"),
@@ -31,9 +66,21 @@ def get_place(user,board):
     for i,v in enumerate(board):
         if user==v[1]:
             return i+1
+def find_nearest(point, points):
+    closest = 1234567890
+    for i in points:
+        if i != point:
+            d=distance(point, i)
+            if d<closest:
+                closest=d
+        else:
+            print("duplicate:"+str(i)+"\n")
+    return closest
+                
 app.jinja_env.globals.update(place=get_place)
 app.jinja_env.globals.update(enumerate=enumerate)
 app.jinja_env.globals.update(round=round)
+app.jinja_env.globals.update(find_nearest=find_nearest)
 @app.after_request
 def enforce_https(response):
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
@@ -43,6 +90,7 @@ def get_lat_lon(ip):
         ip = ""
     req =requests.get("http://ip-api.com/json/"+ip+"?fields=lat,lon", verify=False).json()
     return req["lat"], req["lon"]
+
 @app.route('/')
 def index():
     if not "user" in session:
@@ -54,24 +102,11 @@ def index():
     if "location" in session:
         lat = session["location"]["lat"]
         lon = session["location"]["lon"]
-    print(URL.format(
-                lon=lon,
-                lat=lat,
-                meters=meters,
-                limit=limit,
-                key=key
-                ))
+    features=requests.get(URL.format(lon=lon,lat=lat,meters=meters,limit=limit,key=key), verify=False).json()["features"]
+    print(lat,lon)
     temp = make_response(render_template(
         'index.html',
-        stuff=requests.get(
-            URL.format(
-                lon=lon,
-                lat=lat,
-                meters=meters,
-                limit=limit,
-                key=key
-                ), verify=False
-            ).json()["features"],
+        stuff=features,
         lat=lat,
         lon=lon,
         radius=meters,
@@ -85,7 +120,6 @@ def index():
 @app.route("/signup", methods=["POST","GET"])
 def signup():
     if request.method == "POST":
-        print(request.form)
         try:
             database.create_user(request.form.get("username"), request.form.get("password"))
             session.permanent = True
