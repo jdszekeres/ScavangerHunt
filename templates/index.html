@@ -41,14 +41,16 @@
     var lat,lon;
     let id;
     you = [{{lon}}, {{lat}}].reverse();
+    url = "{{url}}"
     svg = `<i class="fa-solid fa-map-location-dot"></i>`
-    var map=L.map("map").setView(you,17);L.tileLayer("https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw",{maxZoom:20,edgeBufferTiles:20,attribution:"\xa9 OpenStreetMap"}).addTo(map)
+    var map=L.map("map").setView(you,17);L.tileLayer(url,{maxZoom:20,edgeBufferTiles:20,attribution:"\xa9 OpenStreetMap"}).addTo(map)
     L.Icon.Default.imagePath = "/static/markers/";
     var fallout = new L.icon({iconUrl: '/static/markers/fallout.png'})
     const ruler = new CheapRuler(you[1], 'meters');
     var locate=L.control.locate({locateOptions:{enableHighAccuracy:!0},metric:!1}).addTo(map)
     locate.start();you = you.reverse();coordinates = [];
     L.easyButton(svg,function(a,b){data={lat:lat,lon:lon},fetch("/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).then(a=>{location.reload()})}).addTo(map)
+    var cnt = 0;
     {% for i in stuff%}
         {% if "formatted" in i.properties and "name" in i.properties%}
                 var i = {{i|tojson}};
@@ -57,12 +59,19 @@
                     popup = "<img src='/static/markers/art.png' width='16px'>"+popup
                 } else if (i.properties.details.includes("details.building")) {
                     popup = "<img src='/static/markers/building.png' width='16px'>"+popup
+                } else if (i.properties.categories.includes("public_transport.train")) {
+                    popup = "<img src='/static/markers/train.png' width='16px'>"+popup
+                } else if (i.properties.categories.includes("public_transport.bus")) {
+                    popup = "<img src='/static/markers/bus.png' width='16px'>"+popup;
                 }
                 marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
                 marker.bindPopup(popup);
                 coordinates.push({"id":i.properties.place_id,"coordinates":{"lat":i.properties.lat,"lon":i.properties.lon}})
+                cnt++
         {% endif %}
     {% endfor %}
+    console.log("searching for objects within "+{{radius}}+" meters from you")
+    console.log("yay, you have "+cnt.toLocaleString()+" targets to find")
     options={enableHighAccuracy:!0,timeout:5e3,maximumAge:0};var imageUrl="https://game-design-mb.herokuapp.com/static/markers/charge.gif";function success(b){var a=b.coords;lat=a.latitude,lon=a.longitude,coordinates.forEach(b=>{50>ruler.distance([a.longitude,a.latitude],[b.coordinates.lon,b.coordinates.lat])&&b.id!==urlParams.get("id")&&(location.href="http://"+location.host+"/point?id="+b.id,navigator.geolocation.clearWatch(id))})}function error(a){1===a.code&&(alert("this website requires location"),alert("We do not share this information with anyone")),console.warn("ERROR("+a.code+"): "+a.message)}id=navigator.geolocation.watchPosition(success,error,{})
 </script>
 
