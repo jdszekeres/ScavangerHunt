@@ -51,23 +51,52 @@
     locate.start();you = you.reverse();coordinates = [];
     L.easyButton(svg,function(a,b){data={lat:lat,lon:lon},fetch("/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).then(a=>{location.reload()})}).addTo(map)
     var cnt = 0;
+    var categories = [];
+    const images = [
+    "details.artwork",
+    "details.building",
+    "public_transport.train",
+    "public_transport.bus",
+    "natural.water",
+    "leisure.park",
+    "pet.dog_park",
+    "beach",
+    "sport",
+    "activity.sport_club",
+    "building.sport",
+    "pet",
+    "tourism.attraction.viewpoint"
+    ];
     {% for i in stuff%}
         {% if "formatted" in i.properties and "name" in i.properties%}
                 var i = {{i|tojson}};
-                popup = "<a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.name||i.properties.address_line1+"</a>";
+                popup = "<br><a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.name||i.properties.address_line1+"</a>";
                 if (i.properties.details.includes("details.artwork")) {
                     popup = "<img src='/static/markers/art.png' width='16px'>"+popup
-                } else if (i.properties.details.includes("details.building")) {
+                } if (i.properties.details.includes("details.building")) {
                     popup = "<img src='/static/markers/building.png' width='16px'>"+popup
-                } else if (i.properties.categories.includes("public_transport.train")) {
+                } if (i.properties.categories.includes("public_transport.train")) {
                     popup = "<img src='/static/markers/train.png' width='16px'>"+popup
-                } else if (i.properties.categories.includes("public_transport.bus")) {
+                } if (i.properties.categories.includes("public_transport.bus")) {
                     popup = "<img src='/static/markers/bus.png' width='16px'>"+popup;
-                } else if (i.properties.categories.includes("natural.water")) {
+                } if (i.properties.categories.includes("natural.water")) {
                     popup = "<img src='/static/markers/water.png' width='16px'>"+ popup
-                } else if (i.properties.categories.includes("leisure.park")) {
+                } if (i.properties.categories.includes("leisure.park")) {
                     popup = "<img src='/static/markers/park.png' width='16px'>"+popup
+                } if (i.properties.categories.includes("pet.dog_park")||i.properties.categories.includes("pet")) {
+                    popup = "<img src='/static/markers/dog.png' width='16px'>"+popup
+                } if (i.properties.categories.includes("beach")) {
+                    popup = "<img src='/static/markers/beach.png' width='16px'>"+popup
+                } if (i.properties.categories.includes("sport") || i.properties.categories.includes("activity.sport_club") || i.properties.categories.includes("building.sport")) {
+                    popup = "<img src='/static/markers/sport.png' width='16px'>"+popup
+                } if (i.properties.categories.includes("tourism.attraction.viewpoint")) {
+                    popup = "<img src='/static/markers/viewpoint.png' width='16px'>"+popup
                 }
+                i.properties.categories.forEach(function (item){
+                    if (!categories.includes(item) && !images.includes(item)) {
+                        categories.push(item);
+                    }
+                })
                 marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
                 marker.bindPopup(popup);
                 coordinates.push({"id":i.properties.place_id,"coordinates":{"lat":i.properties.lat,"lon":i.properties.lon}})
@@ -76,6 +105,8 @@
     {% endfor %}
     console.log("searching for objects within "+{{radius}}+" meters from you")
     console.log("yay, you have "+cnt.toLocaleString()+" targets to find")
+    console.log("categories are")
+    console.log(categories)
     options={enableHighAccuracy:!0,timeout:5e3,maximumAge:0};var imageUrl="https://game-design-mb.herokuapp.com/static/markers/charge.gif";function success(b){var a=b.coords;lat=a.latitude,lon=a.longitude,coordinates.forEach(b=>{50>ruler.distance([a.longitude,a.latitude],[b.coordinates.lon,b.coordinates.lat])&&b.id!==urlParams.get("id")&&(location.href="http://"+location.host+"/point?id="+b.id,navigator.geolocation.clearWatch(id))})}function error(a){1===a.code&&(alert("this website requires location"),alert("We do not share this information with anyone")),console.warn("ERROR("+a.code+"): "+a.message)}id=navigator.geolocation.watchPosition(success,error,{})
 </script>
 

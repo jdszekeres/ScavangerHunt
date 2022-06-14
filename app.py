@@ -1,9 +1,12 @@
-URL = "https://api.geoapify.com/v2/places?categories=entertainment,leisure,natural,national_park,pet.dog_park,tourism,beach,heritage,public_transport,ski,sport.stadium,building.historic,building.tourism,building.entertainment,activity&filter=circle:{lon},{lat},{meters}&bias=proximity:{lon},{lat}&limit={limit}&apiKey=276a11b14fef44f08a21535795486491"
+URL = "https://api.geoapify.com/v2/places?categories=entertainment,leisure,natural,national_park,pet.dog_park,tourism,beach,heritage,public_transport,ski,sport.stadium,building.historic,building.tourism,building.entertainment,activity&filter=circle:{lon},{lat},{meters}&bias=proximity:{lon},{lat}&limit={limit}&apiKey={key}"
 from flask import *
 from flask_compress import Compress
 import requests
 import database 
 from random import choice
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 badges = [
     # ("https://img.shields.io/badge/made-with-brightgreen","#","made with"),
     # ("https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white","https://github.com/jdszekeres/ScavangerHunt", "github"),
@@ -16,8 +19,11 @@ urls=[
     "https://api.mapbox.com/styles/v1/yopo/cl3yq1zr3000014oaaez3upb0/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoieW9wbyIsImEiOiJjbDA0bzhoM2EwMWhiM2NxajV2Zm1lYmpyIn0.kL4KlQH8tl89C6dJtL31gw",
     "https://api.mapbox.com/styles/v1/puggle-wuggle/cl4eig5ow000115oxhw88uiem/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoicHVnZ2xlLXd1Z2dsZSIsImEiOiJjbDRlaWVzMmswM3k5M2VsaWNpc2V3MGQ4In0.SC8EX6RjDonfDF8yo2Wjdw"
     ]
-tips = []
-
+keys=[
+    "6676411bb88844ae92b0e1bbde4f0652",
+    "276a11b14fef44f08a21535795486491"
+]
+key=choice(keys)
 app = Flask(__name__)
 Compress(app)
 app.secret_key = "\xb8\xb0spa07\x1c\xe0\xdb\xb9\xbaB\xb2\xa1\x92"
@@ -52,7 +58,8 @@ def index():
                 lon=lon,
                 lat=lat,
                 meters=meters,
-                limit=limit
+                limit=limit,
+                key=key
                 ))
     temp = make_response(render_template(
         'index.html',
@@ -61,7 +68,8 @@ def index():
                 lon=lon,
                 lat=lat,
                 meters=meters,
-                limit=limit
+                limit=limit,
+                key=key
                 ), verify=False
             ).json()["features"],
         lat=lat,
@@ -69,7 +77,7 @@ def index():
         radius=meters,
         badges=badges,
         points=database.get_points(session["user"]),
-        tip=str("&nbsp;"*70).join(tips),
+        tip="",
         url=choice(urls)
         ))
     temp.headers.set("Content-Security-Policy","script-src 'nonce-1f40e4a23493'")
@@ -116,4 +124,4 @@ def update_location():
     return jsonify(request.json)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",port=1234,debug=True)
+    app.run(host="0.0.0.0",port=1234,debug=True,threaded=True)
