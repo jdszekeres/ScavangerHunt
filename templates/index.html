@@ -39,6 +39,9 @@
     </footer>
 </body>
 <script nonce="1f40e4a23493">
+    const getVectorAngle = (p1,p2) => {
+       return  Math.atan(Math.abs(p1[0] - p2[0]) / Math.abs(p1[1] - p2[1]));
+    }
     "https:"!==location.protocol&&location.hostname.includes("heroku")&&location.replace(`https:${location.href.substring(location.protocol.length)}`)
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -56,6 +59,7 @@
     L.easyButton(svg,function(a,b){data={lat:lat,lon:lon},fetch("/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).then(a=>{location.reload()})}).addTo(map)
     var cnt = 0;
     var categories = [];
+    var point;
     var crd={"longitude":you[1],"latitude":you[0]};    
     const images = [
     "details.artwork",
@@ -117,19 +121,17 @@
     console.log("categories are")
     console.log(categories)
     function success(pos) {
-        var crd = pos.coords;
+        crd = pos.coords;
         coordinates.sort((a,b)=>{
-            return ruler.distance([crd.longitude, crd.latitude], [a.coordinates.lat,a.coordinates.lon])-ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lat,b.coordinates.lon])
+            x=ruler.distance([crd.longitude, crd.latitude], [a.coordinates.lat,a.coordinates.lon])-ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lat,b.coordinates.lon])
+            return x
         });
         navigator.geolocation.getCurrentPosition((pos)=>{
             lat=pos.coords.latitude;
             lon=pos.coords.longitude;
         });
         a=coordinates[0]
-        b=ruler.bearing([a.coordinates.lat,a.coordinates.lon].reverse(),[crd.longitude, crd.latitude].reverse());
-        if(b<0) b+=360;
-        if(b>360) b-=360;
-        var r = 360 - b;
+        var r = getVectorAngle([crd.latitude,crd.longitude],[a.coordinates.lat,a.coordinates.lon])
         
         document.getElementById("x").style.transform = "rotate("+r+"deg)"
         d=ruler.distance([crd.longitude, crd.latitude].reverse(), [a.coordinates.lon,a.coordinates.lat].reverse())
@@ -145,6 +147,13 @@
     }
     navigator.geolocation.getCurrentPosition(success)
     options={enableHighAccuracy:!0,timeout:2e3,maximumAge:0};var imageUrl="https://game-design-mb.herokuapp.com/static/markers/charge.gif";function error(a){1===a.code&&(alert("this website requires location"),alert("We do not share this information with anyone")),console.warn("ERROR("+a.code+"): "+a.message)}id=navigator.geolocation.watchPosition(success,error,{})
+    function check(){
+        coordinates.forEach(
+            (point) => {
+                console.log(ruler.distance([crd.latitude, crd.longitude],[point.coordinates.lat,point.coordinates.lon])* CheapRuler.units.miles/CheapRuler.units.meters)
+            }
+        )
+    }
 </script>
 
 </html>
