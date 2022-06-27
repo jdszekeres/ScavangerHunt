@@ -11,12 +11,16 @@ con,cur = cc()
 cur.execute("CREATE TABLE IF NOT EXISTS users (id serial primary key, username text, password text, points int);")
 con.commit()
 def create_user(name, password):
+    print("Creating user: %s" % name," ",password)
     conn,cur = cc()
     cur.execute("SELECT * from users WHERE username = '{}'".format(name))
-    if len(cur.fetchall()) == 0:
+    cf = cur.fetchall()
+    if len(cf) == 0:
+        print("good")
         cur.execute("INSERT INTO users (username,password,points) VALUES ('{}','{}',0);".format(name, password))
         conn.commit()
     else:
+        print(cf, len(cf), len(cf) == 0)
         raise Exception("user exists")
 def validate_user(username,password):
     conn,cur = cc()

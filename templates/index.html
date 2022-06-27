@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js" nonce="1f40e4a23493"></script>
     <script src="https://unpkg.com/cheap-ruler@3.0.1/cheap-ruler.js" nonce="1f40e4a23493"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
- <style>#map,body,html{padding:auto;height:100%;width:100%}footer{position:fixed;padding:10px 10px 0 10px;bottom:0;width:100%;height:40px;text-align:center;margin:auto;z-index:1}header{position:fixed;padding:10px 10px 0 10px;top:0;margin:auto;text-align:center;width:100%;height:40px;z-index:22}header>img{vertical-align:bottom}.leaflet-marker-icon{z-index:-1}.marquee{width:100%;line-height:50px;white-space:nowrap;overflow:hidden;box-sizing:border-box}.marquee p{display:inline-block;padding-left:100%;animation:marquee 35s linear infinite}@keyframes marquee{0%{transform:translate(0,0)}100%{transform:translate(-100%,0)}}</style>
+ <style>#map,body,html{padding:auto;height:100%;width:100%}footer{position:fixed;padding:10px 10px 0 10px;bottom:64px;width:100%;height: 64px;text-align:center;margin:auto;z-index:1}header{position:fixed;padding:10px 10px 0 10px;top:0;margin:auto;text-align:center;width:100%;height:40px;z-index:22}header>img{vertical-align:bottom}.leaflet-marker-icon{z-index:-1}.marquee{width:100%;line-height:50px;white-space:nowrap;overflow:hidden;box-sizing:border-box}.marquee p{display:inline-block;padding-left:100%;animation:marquee 35s linear infinite}@keyframes marquee{0%{transform:translate(0,0)}100%{transform:translate(-100%,0)}}</style>
 </head>
 <body>
     <!--battery icon at top-->
@@ -29,6 +29,10 @@
     </header>
     <div id="map"></div>
     <footer>
+        <img src="/static/arrow.png" id="x">
+        <h4 id="distance"></h4>
+        <h5 id="name"></h5>
+
         {% for i in badges%}
             <a href="{{i[1]|safe}}" aria-label="{{i[2]}}"><img src="{{i[0]|safe}}" width="96px" alt="{{i[2]}}"></a>
         {% endfor %}
@@ -52,6 +56,7 @@
     L.easyButton(svg,function(a,b){data={lat:lat,lon:lon},fetch("/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).then(a=>{location.reload()})}).addTo(map)
     var cnt = 0;
     var categories = [];
+    var crd={"longitude":you[1],"latitude":you[0]};    
     const images = [
     "details.artwork",
     "details.building",
@@ -65,7 +70,8 @@
     "activity.sport_club",
     "building.sport",
     "pet",
-    "tourism.attraction.viewpoint"
+    "tourism.attraction.viewpoint",
+    "building"
     ];
     {% set markers=[]%}
     {% for i in stuff%}
@@ -75,7 +81,7 @@
                 popup = "<br><a href=https://www.google.com/maps/dir/?api=1&destination="+i.properties.lat+encodeURIComponent(", ")+i.properties.lon+"&travelmode=walking>"+i.properties.name||i.properties.address_line1+"</a>";
                 if (i.properties.details.includes("details.artwork")) {
                     popup = "<img src='/static/markers/art.png' width='16px'>"+popup
-                } if (i.properties.details.includes("details.building")) {
+                } if (i.properties.details.includes("details.building")||i.properties.categories.includes("building")) {
                     popup = "<img src='/static/markers/building.png' width='16px'>"+popup
                 } if (i.properties.categories.includes("public_transport.train")) {
                     popup = "<img src='/static/markers/train.png' width='16px'>"+popup
@@ -101,20 +107,34 @@
                 })
                 marker = L.marker([i.properties.lat, i.properties.lon], {icon: fallout}).addTo(map);
                 marker.bindPopup(popup);
-                coordinates.push({"id":i.properties.place_id,"coordinates":{"lat":i.properties.lat,"lon":i.properties.lon}})
+                coordinates.push({"id":i.properties.place_id,"coordinates":{"lat":i.properties.lat,"lon":i.properties.lon},"name":i.properties.name})
                 cnt++
         {% endif %}
     {% endfor %}
+    
     console.log("searching for objects within "+{{radius}}+" meters from you")
     console.log("yay, you have "+cnt.toLocaleString()+" targets to find")
     console.log("categories are")
     console.log(categories)
     function success(pos) {
         var crd = pos.coords;
+        coordinates.sort((a,b)=>{
+            return ruler.distance([crd.longitude, crd.latitude], [a.coordinates.lat,a.coordinates.lon])-ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lat,b.coordinates.lon])
+        });
         navigator.geolocation.getCurrentPosition((pos)=>{
             lat=pos.coords.latitude;
             lon=pos.coords.longitude;
         });
+        a=coordinates[0]
+        b=ruler.bearing([a.coordinates.lat,a.coordinates.lon].reverse(),[crd.longitude, crd.latitude].reverse());
+        if(b<0) b+=360;
+        if(b>360) b-=360;
+        var r = 360 - b;
+        
+        document.getElementById("x").style.transform = "rotate("+r+"deg)"
+        d=ruler.distance([crd.longitude, crd.latitude].reverse(), [a.coordinates.lon,a.coordinates.lat].reverse())
+        document.getElementById("distance").innerHTML=(d * CheapRuler.units.miles / CheapRuler.units.meters).toFixed(2).toLocaleString()+"miles"
+        document.getElementById("name").innerHTML=a.name
         coordinates.forEach(b => {
             if (50 > ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lon, b.coordinates.lat]) && b.id !== urlParams.get("id")){
                 location.href = "http://" + location.host + "/point?id=" + b.id
@@ -123,7 +143,8 @@
             }
         })
     }
-    options={enableHighAccuracy:!0,timeout:5e3,maximumAge:0};var imageUrl="https://game-design-mb.herokuapp.com/static/markers/charge.gif";function error(a){1===a.code&&(alert("this website requires location"),alert("We do not share this information with anyone")),console.warn("ERROR("+a.code+"): "+a.message)}id=navigator.geolocation.watchPosition(success,error,{})
+    navigator.geolocation.getCurrentPosition(success)
+    options={enableHighAccuracy:!0,timeout:2e3,maximumAge:0};var imageUrl="https://game-design-mb.herokuapp.com/static/markers/charge.gif";function error(a){1===a.code&&(alert("this website requires location"),alert("We do not share this information with anyone")),console.warn("ERROR("+a.code+"): "+a.message)}id=navigator.geolocation.watchPosition(success,error,{})
 </script>
 
 </html>

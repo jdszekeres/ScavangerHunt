@@ -125,8 +125,8 @@ def signup():
             session.permanent = True
             session["user"] = request.form.get("username")
             return redirect("/")
-        except:
-            return "username exists"
+        except Exception as e:
+            return "username exists: "+str(e)
     keywords = ['Mobile','Opera Mini','Android', 'Iphone', "Ipad"]
     user_agent = request.headers.get('User-Agent').lower()
     if any(word.lower() in user_agent for word in keywords):
