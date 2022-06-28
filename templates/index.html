@@ -47,7 +47,7 @@
     "https:"!==location.protocol&&location.hostname.includes("heroku")&&location.replace(`https:${location.href.substring(location.protocol.length)}`)
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    if (urlParams.get("name") !== "0") {
+    if (urlParams.get("name") !== "0" && urlParams.get("name") !== null) {
         alert("you found the target: "+urlParams.get("name"))
     }
     var lat,lon;
