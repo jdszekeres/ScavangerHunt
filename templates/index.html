@@ -47,6 +47,9 @@
     "https:"!==location.protocol&&location.hostname.includes("heroku")&&location.replace(`https:${location.href.substring(location.protocol.length)}`)
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
+    if (urlParams.get("name") !== "0") {
+        alert("you found the target: "+urlParams.get("name"))
+    }
     var lat,lon;
     let id;
     you = [{{lon}}, {{lat}}].reverse();
@@ -144,7 +147,7 @@
         document.getElementById("name").innerHTML=a.name
         coordinates.forEach(b => {
             if (50 > ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lon, b.coordinates.lat]) && b.id !== urlParams.get("id")){
-                location.href = "http://" + location.host + "/point?id=" + b.id
+                location.href = "http://" + location.host + "/point?id=" + b.id + "&name="+URL.escape(b.name);
                 navigator.geolocation.clearWatch(id)
                 return;
             }

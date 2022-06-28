@@ -146,7 +146,7 @@ def login():
 def add_point():
     if "user" in session:
         database.add_point(session["user"])
-    return """<meta http-equiv="refresh" content="0;URL='https://game-design-mb.herokuapp.com/?id={}'" />""".format(request.args.get("id", "0"))
+    return """<meta http-equiv="refresh" content="0;URL='https://game-design-mb.herokuapp.com/?id={}&name={}'" />""".format(request.args.get("id", "0"),request.args.get("name","0"))
 @app.route("/leaderboard")
 def leaderboard():
     return render_template("leaderboard.html",data=database.get_energy(session["user"]), board=database.get_place(session["user"]), you=session["user"])
