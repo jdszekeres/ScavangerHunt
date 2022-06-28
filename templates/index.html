@@ -63,6 +63,13 @@
     locate.start();you = you.reverse();coordinates = [];
     L.easyButton(svg,function(a,b){data={lat:lat,lon:lon},fetch("/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).then(a=>{location.reload()})}).addTo(map)
     var cnt = 0;
+    map.on('contextmenu',(e) => {
+        L.popup()
+        .setLatLng(e.latlng)
+        .setContent("selected location: "+e.latlng)
+        .addTo(map)
+        .openOn(map);
+      });
     var categories = [];
     var point;
     var crd={"longitude":you[1],"latitude":you[0]};    
@@ -147,7 +154,7 @@
         document.getElementById("name").innerHTML=a.name
         coordinates.forEach(b => {
             if (50 > ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lon, b.coordinates.lat]) && b.id !== urlParams.get("id")){
-                location.href = "http://" + location.host + "/point?id=" + b.id + "&name="+URL.escape(b.name);
+                location.href = "http://" + location.host + "/point?id=" + b.id + "&name="+encodeURIComponent(b.name);
                 navigator.geolocation.clearWatch(id)
                 return;
             }
