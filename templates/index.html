@@ -125,7 +125,7 @@
     function success(pos) {
         crd = pos.coords;
         coordinates.sort((a,b)=>{
-            x=ruler.distance([crd.longitude, crd.latitude], [a.coordinates.lat,a.coordinates.lon])-ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lat,b.coordinates.lon])
+            x=distance([crd.longitude, crd.latitude], [a.coordinates.lat,a.coordinates.lon])-ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lat,b.coordinates.lon])
             return x
         });
         navigator.geolocation.getCurrentPosition((pos)=>{

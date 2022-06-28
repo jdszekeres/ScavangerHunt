@@ -12,7 +12,7 @@ function distance(a, b) {
 
   const f = dLat * dLat + cLat * cLat * dLon * dLon;
   const c = 2 * Math.atan2(Math.sqrt(f), Math.sqrt(1 - f));
-
+  console.log(c)
   return R * c;
 }
 function bearing (a,b) {
