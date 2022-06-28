@@ -79,6 +79,9 @@
     "tourism.attraction.viewpoint",
     "building"
     ];
+    console.log("hello from the console");
+    console.log("do not paste anything in here you do not understand")
+    
     {% set markers=[]%}
     {% for i in stuff%}
         {% if "formatted" in i.properties and "name" in i.properties and find_nearest([i.properties.lat,i.properties.lon], markers)>100%}
