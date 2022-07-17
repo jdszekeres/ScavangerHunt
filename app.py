@@ -8,27 +8,6 @@ import urllib3
 import math
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 def distance(origin, destination):
-    """
-    Calculate the Haversine distance.
-
-    Parameters
-    ----------
-    origin : tuple of float
-        (lat, long)
-    destination : tuple of float
-        (lat, long)
-
-    Returns
-    -------
-    distance_in_km : float
-
-    Examples
-    --------
-    >>> origin = (48.1372, 11.5756)  # Munich
-    >>> destination = (52.5186, 13.4083)  # Berlin
-    >>> round(distance(origin, destination), 1)
-    504.2
-    """
     lat1, lon1 = origin
     lat2, lon2 = destination
     radius = 6371000  # meters
@@ -43,6 +22,7 @@ def distance(origin, destination):
 
     return d
 badges = [
+    ("https://www.scouting.org/wp-content/uploads/2019/09/merit-badge-GameDesign.svg","#","for the game design merit badge")
     # ("https://img.shields.io/badge/made-with-brightgreen","#","made with"),
     # ("https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white","https://github.com/jdszekeres/ScavangerHunt", "github"),
     # ("https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white", "https://www.postgresql.org/", "postgresql"),

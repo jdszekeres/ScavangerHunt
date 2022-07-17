@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="static/geolib.js" nonce="1f40e4a23493"></script>
     <script src="/static/haversine.js" nonce="1f40e4a23493"></script>
- <style>#map,body,html{padding:auto;height:100%;width:100%}footer{position:fixed;padding:10px 10px 0 10px;bottom:64px;width:100%;height: 64px;text-align:center;margin:auto;z-index:1}header{position:fixed;padding:10px 10px 0 10px;top:0;margin:auto;text-align:center;width:100%;height:40px;z-index:22}header>img{vertical-align:bottom}.leaflet-marker-icon{z-index:-1}.marquee{width:100%;line-height:50px;white-space:nowrap;overflow:hidden;box-sizing:border-box}.marquee p{display:inline-block;padding-left:100%;animation:marquee 35s linear infinite}@keyframes marquee{0%{transform:translate(0,0)}100%{transform:translate(-100%,0)}}</style>
+ <style>#map,body,html{padding:auto;height:100%;width:100%}footer{position:fixed;padding:10px 10px 0 10px;bottom:100px;width:100%;height: 100px;text-align:center;margin:auto;z-index:1}header{position:fixed;padding:10px 10px 0 10px;top:0;margin:auto;text-align:center;width:100%;height:40px;z-index:22}header>img{vertical-align:bottom}.leaflet-marker-icon{z-index:-1}.marquee{width:100%;line-height:50px;white-space:nowrap;overflow:hidden;box-sizing:border-box}.marquee p{display:inline-block;padding-left:100%;animation:marquee 35s linear infinite}@keyframes marquee{0%{transform:translate(0,0)}100%{transform:translate(-100%,0)}}</style>
 </head>
 <body>
     <!--battery icon at top-->
@@ -32,8 +32,8 @@
     <div id="map"></div>
     <footer>
         <img src="/static/arrow.png" id="x">
-        <h4 id="distance"></h4>
-        <h5 id="name"></h5>
+        <h5 id="distance"></h5>
+        <h6 id="name"></h6>
 
         {% for i in badges%}
             <a href="{{i[1]|safe}}" aria-label="{{i[2]}}"><img src="{{i[0]|safe}}" width="96px" alt="{{i[2]}}"></a>
@@ -137,23 +137,29 @@
     console.log(categories)
     function success(pos) {
         crd = pos.coords;
-        coordinates.sort((a,b)=>{
-            x=distance([crd.longitude, crd.latitude], [a.coordinates.lat,a.coordinates.lon])-ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lat,b.coordinates.lon])
-            return x
-        });
+
+
         navigator.geolocation.getCurrentPosition((pos)=>{
             lat=pos.coords.latitude;
             lon=pos.coords.longitude;
         });
+        console.log(crd);
+        coordinates.sort((a,b)=>{
+            x=calcCrow(crd.latitude, crd.longitude, a.coordinates.lat,a.coordinates.lon)-calcCrow(crd.longitude, crd.latitude, b.coordinates.lat,b.coordinates.lon);
+            return x
+        });
         a=coordinates[0]
+
+        console.log(a)
+        console.log(calcCrow(crd.longitude, crd.latitude, a.coordinates.lat,a.coordinates.lon))
         var r = bearing([crd.latitude,crd.longitude],[a.coordinates.lat,a.coordinates.lon])
         
         document.getElementById("x").style.transform = "rotate("+r+"deg)"
-        d=distance([crd.longitude, crd.latitude].reverse(), [a.coordinates.lon,a.coordinates.lat].reverse())
+        d=calcCrow(crd.latitude, crd.longitude, a.coordinates.lat,a.coordinates.lon)
         document.getElementById("distance").innerHTML=(d * CheapRuler.units.miles / CheapRuler.units.meters).toFixed(2).toLocaleString()+"miles"
         document.getElementById("name").innerHTML=a.name
         coordinates.forEach(b => {
-            if (50 > ruler.distance([crd.longitude, crd.latitude], [b.coordinates.lon, b.coordinates.lat]) && b.id !== urlParams.get("id")){
+            if (50 > calcCrow(crd.latitude, crd.longitude, b.coordinates.lat, b.coordinates.lon) && b.id !== urlParams.get("id")){
                 location.href = "http://" + location.host + "/point?id=" + b.id + "&name="+encodeURIComponent(b.name);
                 navigator.geolocation.clearWatch(id)
                 return;
@@ -165,7 +171,7 @@
     function check(){
         coordinates.forEach(
             (point) => {
-                console.log(distance([crd.latitude, crd.longitude],[point.coordinates.lat,point.coordinates.lon])* CheapRuler.units.miles/CheapRuler.units.meters)
+                console.log(calcCrow(crd.latitude, crd.longitude,point.coordinates.lat,point.coordinates.lon)* CheapRuler.units.miles/CheapRuler.units.meters)
             }
         )
     }
